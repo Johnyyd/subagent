@@ -1,20 +1,32 @@
+import os
 import sys
 import json
 import subprocess
 import re
+import shlex
 
-def call_free_claude(prompt):
-    result = subprocess.run(["free-claude-code", prompt], capture_output=True, text=True, encoding='utf-8')
-    return result.stdout
+def call_free_claude(prompt, cli_cmd=None):
+    if not cli_cmd:
+        cli_cmd = os.getenv("CLAUDE_CMD", "free-claude-code")
+        
+    command = f'{cli_cmd} {shlex.quote(prompt)}'
+    process = subprocess.run(command, shell=True, capture_output=True, text=True, encoding='utf-8')
+    
+    if process.returncode != 0:
+        err_msg = process.stderr.strip() if process.stderr else "Lỗi không xác định"
+        print(f"⚠️ Lỗi khi chạy lệnh CLI '{cli_cmd}' (Mã thoát: {process.returncode}): {err_msg}")
+        
+    return process.stdout
+
 
 def extract_code_block(text):
     """Trích xuất mã nguồn bên trong dấu ``` (markdown code block)"""
     match = re.search(r'```(?:[a-zA-Z]*)\n(.*?)```', text, re.DOTALL)
     if match:
         return match.group(1).strip()
-    return text.strip() # Trả về nguyên bản nếu không có backticks
+    return text.strip()
 
-def run_worker(task_file):
+def run_worker(task_file, cli_cmd=None):
     with open(task_file, "r", encoding="utf-8") as f:
         task = json.load(f)
         
@@ -26,9 +38,13 @@ def run_worker(task_file):
         print(f"\n[{task['task_id']}] Lần thử {attempt + 1}...")
         
         # 1. Gọi free-claude-code
-        raw_output = call_free_claude(current_prompt)
+        raw_output = call_free_claude(current_prompt, cli_cmd)
         code_output = extract_code_block(raw_output)
         
+        if not code_output:
+            print(f"[{task['task_id']}] ❌ Không nhận được mã nguồn từ CLI AI.")
+            continue
+
         # 2. Lưu code ra file
         with open(file_to_create, "w", encoding="utf-8") as f:
             f.write(code_output)
@@ -39,7 +55,7 @@ def run_worker(task_file):
         
         # 4. Kiểm tra (Feedback Loop)
         if result.returncode == 0:
-            print(f"[{task['task_id']}] THÀNH CÔNG! Code pass bài test.")
+            print(f"[{task['task_id']}] ✅ THÀNH CÔNG! Code pass bài test.")
             return
         else:
             error_log = result.stderr if result.stderr else result.stdout
@@ -57,7 +73,7 @@ def run_worker(task_file):
             Hãy tìm nguyên nhân và viết lại TOÀN BỘ file code đã sửa. CHỈ trả về code trong block ```.
             """
             
-    print(f"[{task['task_id']}] THẤT BẠI sau {task['max_loops']} vòng lặp.")
+    print(f"[{task['task_id']}] ❌ THẤT BẠI sau {task['max_loops']} vòng lặp.")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
