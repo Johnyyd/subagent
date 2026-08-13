@@ -5,9 +5,15 @@ import re
 import argparse # Thêm thư viện này để bắt tham số CLI
 
 def call_free_claude(prompt):
-    print("Đang phân tích yêu cầu và gọi free-claude-code (vui lòng đợi)...")
-    result = subprocess.run(["free-claude-code", prompt], capture_output=True, text=True, encoding='utf-8')
-    return result.stdout
+    # Dùng cách này nếu tool bắt buộc phải gõ prompt vào input sau khi bật tool lên
+    process = subprocess.run(
+        ["free-claude-code"], 
+        input=prompt, 
+        capture_output=True, 
+        text=True, 
+        encoding='utf-8'
+    )
+    return process.stdout
 
 def generate_plan(project_requirement):
     prompt = f"""
