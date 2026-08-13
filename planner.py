@@ -7,7 +7,7 @@ import shlex
 
 def call_free_claude(prompt, cli_cmd=None):
     if not cli_cmd:
-        cli_cmd = os.getenv("CLAUDE_CMD", "free-claude-code")
+        cli_cmd = os.getenv("CLAUDE_CMD", "fcc-claude")
     
     # Bọc prompt trong shlex.quote để an toàn tuyệt đối với mọi ký tự đặc biệt
     command = f'{cli_cmd} {shlex.quote(prompt)}'
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         "-c", "--cmd",
         type=str,
         default=None,
-        help="Lệnh CLI để gọi AI (mặc định dùng biến CLAUDE_CMD hoặc 'free-claude-code')"
+        help="Lệnh CLI để gọi AI (mặc định dùng biến CLAUDE_CMD hoặc 'fcc-claude')"
     )
     
     args = parser.parse_args()

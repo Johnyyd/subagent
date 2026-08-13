@@ -7,7 +7,7 @@ import shlex
 
 def call_free_claude(prompt, cli_cmd=None):
     if not cli_cmd:
-        cli_cmd = os.getenv("CLAUDE_CMD", "free-claude-code")
+        cli_cmd = os.getenv("CLAUDE_CMD", "fcc-claude")
         
     command = f'{cli_cmd} {shlex.quote(prompt)}'
     process = subprocess.run(command, shell=True, capture_output=True, text=True, encoding='utf-8')
@@ -37,7 +37,7 @@ def run_worker(task_file, cli_cmd=None):
     for attempt in range(task["max_loops"]):
         print(f"\n[{task['task_id']}] Lần thử {attempt + 1}...")
         
-        # 1. Gọi free-claude-code
+        # 1. Gọi fcc-claude
         raw_output = call_free_claude(current_prompt, cli_cmd)
         code_output = extract_code_block(raw_output)
         
