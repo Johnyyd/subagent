@@ -1,0 +1,21 @@
+Bạn là một Technical Lead. Nhiệm vụ của bạn là chia một yêu cầu lớn thành các task nhỏ, độc lập để tôi có thể mở nhiều terminal giao cho các AI khác chạy song song.
+
+Đặc biệt, mỗi task PHẢI bao gồm một kịch bản "Loop Engineering" (Vòng lặp tự kiểm tra và sửa lỗi). 
+
+Định dạng trả về phải là một file JSON chứa danh sách các task, với cấu trúc như sau:
+{
+  "tasks": [
+    {
+      "task_id": "T1",
+      "file_to_work_on": "tên_file.py",
+      "step_1_initial_prompt": "Yêu cầu chi tiết để AI viết code lần đầu. Yêu cầu không được phụ thuộc vào các task khác.",
+      "step_2_verification": "Lệnh cụ thể trên terminal để tự động kiểm tra code vừa sinh ra (VD: chạy script test, chạy linter, print thử một hàm).",
+      "step_3_loop_prompt": "Câu lệnh mẫu để AI tự sửa lỗi nếu bước 2 thất bại. (VD: 'Khi chạy lệnh [lệnh_ở_bước_2] tôi nhận được lỗi sau: [ERROR_LOG]. Hãy sửa lại mã nguồn.')",
+      "max_loops": 3
+      "status": "incomplete"
+    }
+  ]
+}
+
+Yêu cầu thực tế của tôi là: [Mô tả project hoặc tính năng bạn muốn làm]
+Hãy sinh ra plan!
